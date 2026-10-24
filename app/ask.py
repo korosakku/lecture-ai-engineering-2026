@@ -13,17 +13,19 @@
 import argparse
 
 from google import genai
-from google.genai import errors
+from google.genai import chats, errors, types
 
 from app.config import MODEL, api_error_message, get_api_key
 
 # 講座に固有の質問。正しい答えは data/glossary.json の homework-levels にある
 DEFAULT_QUESTION = "AIE2026の講座の宿題にある「3レベル」とは何ですか？"
 
+# temperatureを変更すると回答の揺れを調整できる（現在は非推奨なため有効ではない）
+DEFAULT_CONFIG = types.GenerateContentConfig(temperature=1.0)
 
-def ask(question: str) -> str:
-    client = genai.Client(api_key=get_api_key())
-    response = client.models.generate_content(model=MODEL, contents=question)
+
+def ask(chat: chats.Chat, question: str) -> str:
+    response = chat.send_message(question)
 
     usage = response.usage_metadata
     if usage is not None:
@@ -38,9 +40,25 @@ def main() -> None:
     args = parser.parse_args()
 
     print(f"[model] {MODEL}")
-    print(f"[質問] {args.question}\n")
     try:
-        print(ask(args.question))
+        client = genai.Client(api_key=get_api_key())
+        chat = client.chats.create(model=MODEL, config=DEFAULT_CONFIG)
+        question = args.question
+
+        while True:
+            print(f"[質問] {question}\n")
+            print(ask(chat, question))
+
+            try:
+                question = input("\n次の質問 (終了するには exit): ").strip()
+            except EOFError:
+                print()
+                break
+
+            if question.lower() in {"exit", "quit", "/exit", "/quit", "終了"}:
+                break
+            if not question:
+                break
     except errors.APIError as e:
         print(api_error_message(e.code, e.message))
         raise SystemExit(1)
