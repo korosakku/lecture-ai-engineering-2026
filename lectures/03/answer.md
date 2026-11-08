@@ -9,7 +9,7 @@
 
 ## 宿題
 
-- 取り組んだレベル：基礎 / 実装 / 発展
-- やったこと：
-- 結果：
-- 気づき・疑問：
+- 取り組んだレベル：基礎
+- やったこと：agent.pyのINSTRUCTIONSやtools.pyのdocstringを変えて"LoRAとQLoRAの違いは？"を実行
+- 結果：INSTRUCTIONSに「嘘をつく」と書くときちんと間違った回答を行い、search_glossaryのdocstringに「queryには調べたい用語をすべて入れる」と書くと、LoRAとQLoRAを一度に引数に入れ、tool_callsも１で済んだ。
+- 気づき・疑問：利用者がいちいち前提のプロンプトを入力する必要がないため、ユーザビリティの向上に役立ちそう。ただ、INSTRUCTIONSやdocstringはどの程度強制力があり、回避されることはないのか疑問が生じた。
